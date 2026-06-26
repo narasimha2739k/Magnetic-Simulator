@@ -276,3 +276,19 @@ canvas{
     border: none;
     border-top: 1px solid rgba(255,255,255,0.2);
 }
+/* ===========================
+   Live Information Panel
+=========================== */
+
+.info-panel{
+    margin-top:20px;
+    padding:15px;
+    border-radius:10px;
+    background:#1b2335;
+    color:white;
+    font-size:15px;
+}
+
+.info-panel p{
+    margin:10px 0;
+}

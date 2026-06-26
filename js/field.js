@@ -10,6 +10,10 @@ const ctx = canvas.getContext("2d");
 const slider = document.getElementById("currentSlider");
 const currentValue = document.getElementById("currentValue");
 const directionRadios = document.querySelectorAll('input[name="direction"]');
+const infoCurrent = document.getElementById("infoCurrent");
+const infoDirection = document.getElementById("infoDirection");
+const infoDistance = document.getElementById("infoDistance");
+const infoField = document.getElementById("infoField");
 
 // Simulation State
 let current = Number(slider.value);
@@ -191,3 +195,16 @@ directionRadios.forEach(radio=>{
 
 // Initial Draw
 draw();
+// ===============================
+// Update Information Panel
+// ===============================
+function updateInfoPanel(){
+
+    infoCurrent.textContent = current + " A";
+
+    infoDirection.textContent =
+        currentDirection === "out"
+        ? "Out of Page"
+        : "Into Page";
+
+}

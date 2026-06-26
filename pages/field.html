@@ -10,7 +10,7 @@
 
 <body>
 
-    <!-- Navigation Bar -->
+    <!-- ===================== NAVBAR ===================== -->
     <nav class="navbar">
 
         <div class="logo">
@@ -23,20 +23,23 @@
 
     </nav>
 
-    <!-- Page Title -->
+    <!-- ===================== PAGE TITLE ===================== -->
     <h1 class="page-title">
         Magnetic Field Simulator
     </h1>
 
+    <!-- ===================== MAIN CONTAINER ===================== -->
     <div class="simulation-container">
 
-        <!-- Control Panel -->
+        <!-- ===================== CONTROL PANEL ===================== -->
         <div class="control-panel">
 
             <h2>Controls</h2>
 
             <!-- Current Slider -->
-            <label for="currentSlider"><strong>Current (Ampere)</strong></label>
+            <label for="currentSlider">
+                <strong>Current (Ampere)</strong>
+            </label>
 
             <input
                 type="range"
@@ -78,22 +81,57 @@
 
             <hr>
 
-            <!-- Simulation Buttons -->
+            <!-- Simulation Controls -->
             <h3>Simulation Controls</h3>
 
             <div class="button-group">
 
-                <button id="startBtn">▶ Start</button>
+                <button id="startBtn">
+                    ▶ Start
+                </button>
 
-                <button id="pauseBtn">⏸ Pause</button>
+                <button id="pauseBtn">
+                    ⏸ Pause
+                </button>
 
-                <button id="resetBtn">🔄 Reset</button>
+                <button id="resetBtn">
+                    🔄 Reset
+                </button>
+
+            </div>
+
+            <hr>
+
+            <!-- Live Information -->
+            <h3>Live Information</h3>
+
+            <div class="info-panel">
+
+                <p>
+                    <strong>Current:</strong>
+                    <span id="infoCurrent">5 A</span>
+                </p>
+
+                <p>
+                    <strong>Direction:</strong>
+                    <span id="infoDirection">Out of Page</span>
+                </p>
+
+                <p>
+                    <strong>Distance:</strong>
+                    <span id="infoDistance">-- cm</span>
+                </p>
+
+                <p>
+                    <strong>Magnetic Field:</strong>
+                    <span id="infoField">-- μT</span>
+                </p>
 
             </div>
 
         </div>
 
-        <!-- Simulation Canvas -->
+        <!-- ===================== SIMULATION AREA ===================== -->
         <div class="canvas-panel">
 
             <canvas
