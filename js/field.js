@@ -171,21 +171,24 @@ function draw() {
 // ===============================
 // Events
 // ===============================
-slider.addEventListener("input",()=>{
+slider.addEventListener("input", () => {
 
     current = Number(slider.value);
 
     currentValue.textContent = current;
 
+    updateInfoPanel();
+
     draw();
 
 });
+directionRadios.forEach(radio => {
 
-directionRadios.forEach(radio=>{
-
-    radio.addEventListener("change",()=>{
+    radio.addEventListener("change", () => {
 
         currentDirection = radio.value;
+
+        updateInfoPanel();
 
         draw();
 
@@ -193,12 +196,10 @@ directionRadios.forEach(radio=>{
 
 });
 
-// Initial Draw
-draw();
 // ===============================
 // Update Information Panel
 // ===============================
-function updateInfoPanel(){
+function updateInfoPanel() {
 
     infoCurrent.textContent = current + " A";
 
@@ -208,3 +209,9 @@ function updateInfoPanel(){
         : "Into Page";
 
 }
+
+// ===============================
+// Initial Draw
+// ===============================
+updateInfoPanel();
+draw();
