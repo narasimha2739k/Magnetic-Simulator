@@ -244,3 +244,35 @@ canvas{
     border:3px solid #38bdf8;
 
 }
+.button-group{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.button-group button{
+    width: 100%;
+}
+.direction-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 15px 0 25px;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.button-group button {
+    width: 100%;
+}
+
+.control-panel hr {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}

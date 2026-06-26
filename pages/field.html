@@ -10,61 +10,103 @@
 
 <body>
 
-<nav class="navbar">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
 
-    <div class="logo">
-        🧲 Magnetic Simulator
+        <div class="logo">
+            🧲 Magnetic Simulator
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="../index.html">Home</a></li>
+        </ul>
+
+    </nav>
+
+    <!-- Page Title -->
+    <h1 class="page-title">
+        Magnetic Field Simulator
+    </h1>
+
+    <div class="simulation-container">
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+
+            <h2>Controls</h2>
+
+            <!-- Current Slider -->
+            <label for="currentSlider"><strong>Current (Ampere)</strong></label>
+
+            <input
+                type="range"
+                id="currentSlider"
+                min="1"
+                max="10"
+                value="5">
+
+            <p>
+                Current:
+                <span id="currentValue">5</span> A
+            </p>
+
+            <hr>
+
+            <!-- Current Direction -->
+            <h3>Current Direction</h3>
+
+            <div class="direction-group">
+
+                <label>
+                    <input
+                        type="radio"
+                        name="direction"
+                        value="out"
+                        checked>
+                    Out of Page (⊙)
+                </label>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="direction"
+                        value="in">
+                    Into Page (⊗)
+                </label>
+
+            </div>
+
+            <hr>
+
+            <!-- Simulation Buttons -->
+            <h3>Simulation Controls</h3>
+
+            <div class="button-group">
+
+                <button id="startBtn">▶ Start</button>
+
+                <button id="pauseBtn">⏸ Pause</button>
+
+                <button id="resetBtn">🔄 Reset</button>
+
+            </div>
+
+        </div>
+
+        <!-- Simulation Canvas -->
+        <div class="canvas-panel">
+
+            <canvas
+                id="simulationCanvas"
+                width="700"
+                height="500">
+            </canvas>
+
+        </div>
+
     </div>
 
-    <ul class="nav-links">
-        <li><a href="../index.html">Home</a></li>
-    </ul>
-
-</nav>
-
-<h1 class="page-title">
-    Magnetic Field Simulator
-</h1>
-
-<div class="simulation-container">
-
-    <div class="control-panel">
-
-        <h2>Controls</h2>
-
-        <label>Current (Ampere)</label>
-
-        <input
-            type="range"
-            id="currentSlider"
-            min="1"
-            max="10"
-            value="5">
-
-        <p>
-            Current:
-            <span id="currentValue">5</span> A
-        </p>
-
-        <button id="startBtn">Start</button>
-        <button id="pauseBtn">Pause</button>
-        <button id="resetBtn">Reset</button>
-
-    </div>
-
-    <div class="canvas-panel">
-
-        <canvas
-            id="simulationCanvas"
-            width="700"
-            height="500">
-        </canvas>
-
-    </div>
-
-</div>
-
-<script src="../js/field.js"></script>
+    <script src="../js/field.js"></script>
 
 </body>
 </html>
