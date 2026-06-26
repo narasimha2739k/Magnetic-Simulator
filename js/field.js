@@ -68,6 +68,41 @@ function drawFieldLines() {
 
     }
 }
+// ===============================
+// Draw Arrow
+// ===============================
+function drawArrow(x, y, angle) {
+
+    const length = 18;
+
+    ctx.save();
+
+    ctx.translate(x, y);
+
+    ctx.rotate(angle);
+
+    // Arrow line
+    ctx.beginPath();
+    ctx.moveTo(-length / 2, 0);
+    ctx.lineTo(length / 2, 0);
+
+    ctx.strokeStyle = "#1565C0";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Arrow head
+    ctx.beginPath();
+    ctx.moveTo(length / 2, 0);
+    ctx.lineTo(length / 2 - 5, -4);
+    ctx.lineTo(length / 2 - 5, 4);
+    ctx.closePath();
+
+    ctx.fillStyle = "#1565C0";
+    ctx.fill();
+
+    ctx.restore();
+
+}
 
 // ===============================
 // Draw Direction Arrows
@@ -77,44 +112,29 @@ function drawDirectionArrows() {
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
 
-    const positions = [
+    const radius = 40;
 
-        {x:centerX,     y:centerY-40},
-        {x:centerX+40,  y:centerY},
-        {x:centerX,     y:centerY+40},
-        {x:centerX-40,  y:centerY},
+    for (let i = 0; i < 8; i++) {
 
-        {x:centerX+28,  y:centerY-28},
-        {x:centerX+28,  y:centerY+28},
-        {x:centerX-28,  y:centerY+28},
-        {x:centerX-28,  y:centerY-28}
+        const theta = (i * Math.PI) / 4;
 
-    ];
+        const x = centerX + radius * Math.cos(theta);
 
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "#1565C0";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+        const y = centerY + radius * Math.sin(theta);
 
-    let arrows;
+        let angle;
 
-    if(currentDirection === "out"){
+        if (currentDirection === "out") {
 
-        arrows = ["←","↑","→","↓","↖","↗","↘","↙"];
+            angle = theta + Math.PI / 2;
 
-    }else{
+        } else {
 
-        arrows = ["→","↓","←","↑","↘","↙","↖","↗"];
+            angle = theta - Math.PI / 2;
 
-    }
+        }
 
-    for(let i=0;i<positions.length;i++){
-
-        ctx.fillText(
-            arrows[i],
-            positions[i].x,
-            positions[i].y
-        );
+        drawArrow(x, y, angle);
 
     }
 
