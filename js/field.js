@@ -14,7 +14,37 @@ const directionRadios = document.querySelectorAll('input[name="direction"]');
 // Simulation State
 let current = Number(slider.value);
 let currentDirection = "out";
+// ===============================
+// Draw Coordinate Grid
+// ===============================
+function drawGrid() {
 
+    const gridSize = 25;
+
+    ctx.strokeStyle = "#eeeeee";
+    ctx.lineWidth = 1;
+
+    // Vertical lines
+    for (let x = 0; x <= canvas.width; x += gridSize) {
+
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+
+    }
+
+    // Horizontal lines
+    for (let y = 0; y <= canvas.height; y += gridSize) {
+
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+
+    }
+
+}
 // ===============================
 // Draw Magnetic Field Lines
 // ===============================
@@ -123,6 +153,8 @@ function drawWire() {
 function draw() {
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    drawGrid();
 
     drawFieldLines();
 
