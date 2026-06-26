@@ -6,18 +6,36 @@
 const canvas = document.getElementById("simulationCanvas");
 const ctx = canvas.getContext("2d");
 
-// UI
+// ===============================
+// UI Elements
+// ===============================
 const slider = document.getElementById("currentSlider");
 const currentValue = document.getElementById("currentValue");
-const directionRadios = document.querySelectorAll('input[name="direction"]');
+
+const directionRadios = document.querySelectorAll(
+    'input[name="direction"]'
+);
+
+const startBtn = document.getElementById("startBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const resetBtn = document.getElementById("resetBtn");
+
 const infoCurrent = document.getElementById("infoCurrent");
 const infoDirection = document.getElementById("infoDirection");
 const infoDistance = document.getElementById("infoDistance");
 const infoField = document.getElementById("infoField");
 
+// ===============================
 // Simulation State
+// ===============================
 let current = Number(slider.value);
+
 let currentDirection = "out";
+
+let animationRunning = false;
+
+let animationAngle = 0;
+
 // ===============================
 // Draw Coordinate Grid
 // ===============================
@@ -25,10 +43,9 @@ function drawGrid() {
 
     const gridSize = 25;
 
-    ctx.strokeStyle = "#eeeeee";
+    ctx.strokeStyle = "#303030";
     ctx.lineWidth = 1;
 
-    // Vertical lines
     for (let x = 0; x <= canvas.width; x += gridSize) {
 
         ctx.beginPath();
@@ -38,7 +55,6 @@ function drawGrid() {
 
     }
 
-    // Horizontal lines
     for (let y = 0; y <= canvas.height; y += gridSize) {
 
         ctx.beginPath();
@@ -49,6 +65,7 @@ function drawGrid() {
     }
 
 }
+
 // ===============================
 // Draw Magnetic Field Lines
 // ===============================
@@ -60,14 +77,24 @@ function drawFieldLines() {
     for (let radius = 40; radius <= current * 25 + 30; radius += 25) {
 
         ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+
+        ctx.arc(
+            centerX,
+            centerY,
+            radius,
+            0,
+            Math.PI * 2
+        );
 
         ctx.strokeStyle = "#2196F3";
         ctx.lineWidth = 2;
+
         ctx.stroke();
 
     }
+
 }
+
 // ===============================
 // Draw Arrow
 // ===============================
@@ -81,23 +108,25 @@ function drawArrow(x, y, angle) {
 
     ctx.rotate(angle);
 
-    // Arrow line
     ctx.beginPath();
     ctx.moveTo(-length / 2, 0);
     ctx.lineTo(length / 2, 0);
 
     ctx.strokeStyle = "#1565C0";
     ctx.lineWidth = 2;
+
     ctx.stroke();
 
-    // Arrow head
     ctx.beginPath();
+
     ctx.moveTo(length / 2, 0);
     ctx.lineTo(length / 2 - 5, -4);
     ctx.lineTo(length / 2 - 5, 4);
+
     ctx.closePath();
 
     ctx.fillStyle = "#1565C0";
+
     ctx.fill();
 
     ctx.restore();
@@ -116,11 +145,17 @@ function drawDirectionArrows() {
 
     for (let i = 0; i < 8; i++) {
 
-        const theta = (i * Math.PI) / 4;
+        const theta =
+            animationAngle +
+            (i * Math.PI) / 4;
 
-        const x = centerX + radius * Math.cos(theta);
+        const x =
+            centerX +
+            radius * Math.cos(theta);
 
-        const y = centerY + radius * Math.sin(theta);
+        const y =
+            centerY +
+            radius * Math.sin(theta);
 
         let angle;
 
@@ -149,9 +184,17 @@ function drawWire() {
     const centerY = canvas.height / 2;
 
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 15, 0, Math.PI * 2);
+
+    ctx.arc(
+        centerX,
+        centerY,
+        15,
+        0,
+        Math.PI * 2
+    );
 
     ctx.fillStyle = "red";
+
     ctx.fill();
 
     ctx.fillStyle = "white";
@@ -159,11 +202,11 @@ function drawWire() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    if(currentDirection === "out"){
+    if (currentDirection === "out") {
 
         ctx.fillText("•", centerX, centerY);
 
-    }else{
+    } else {
 
         ctx.fillText("×", centerX, centerY);
 
@@ -176,7 +219,12 @@ function drawWire() {
 // ===============================
 function draw() {
 
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
     drawGrid();
 
@@ -189,8 +237,54 @@ function draw() {
 }
 
 // ===============================
+// Update Information Panel
+// ===============================
+function updateInfoPanel() {
+
+    infoCurrent.textContent =
+        current + " A";
+
+    infoDirection.textContent =
+        currentDirection === "out"
+            ? "Out of Page"
+            : "Into Page";
+
+    infoDistance.textContent = "-- cm";
+
+    infoField.textContent = "-- μT";
+
+}
+
+// ===============================
+// Animation Loop
+// ===============================
+function animate() {
+
+    if (animationRunning) {
+
+        if (currentDirection === "out") {
+
+            animationAngle += 0.02;
+
+        } else {
+
+            animationAngle -= 0.02;
+
+        }
+
+        draw();
+
+    }
+
+    requestAnimationFrame(animate);
+
+}
+
+// ===============================
 // Events
 // ===============================
+
+// Slider
 slider.addEventListener("input", () => {
 
     current = Number(slider.value);
@@ -202,6 +296,8 @@ slider.addEventListener("input", () => {
     draw();
 
 });
+
+// Direction
 directionRadios.forEach(radio => {
 
     radio.addEventListener("change", () => {
@@ -216,22 +312,36 @@ directionRadios.forEach(radio => {
 
 });
 
-// ===============================
-// Update Information Panel
-// ===============================
-function updateInfoPanel() {
+// Start
+startBtn.addEventListener("click", () => {
 
-    infoCurrent.textContent = current + " A";
+    animationRunning = true;
 
-    infoDirection.textContent =
-        currentDirection === "out"
-        ? "Out of Page"
-        : "Into Page";
+});
 
-}
+// Pause
+pauseBtn.addEventListener("click", () => {
+
+    animationRunning = false;
+
+});
+
+// Reset
+resetBtn.addEventListener("click", () => {
+
+    animationRunning = false;
+
+    animationAngle = 0;
+
+    draw();
+
+});
 
 // ===============================
 // Initial Draw
 // ===============================
 updateInfoPanel();
+
 draw();
+
+animate();
