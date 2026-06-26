@@ -3,6 +3,10 @@ const canvas = document.getElementById("simulationCanvas");
 
 // Get the drawing context (our pen)
 const ctx = canvas.getContext("2d");
+const slider = document.getElementById("currentSlider");
+const currentValue = document.getElementById("currentValue");
+
+let current = Number(slider.value);
 
 // Function to draw the wire
 function drawWire() {
@@ -32,7 +36,7 @@ function drawFieldLines() {
     const centerY = canvas.height / 2;
 
     // Draw 6 concentric circles
-    for (let radius = 40; radius <= 180; radius += 25) {
+    for (let radius = 40; radius <= current * 25 + 30; radius += 25) {
 
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
@@ -44,3 +48,12 @@ function drawFieldLines() {
     }
 
 }
+slider.addEventListener("input", () => {
+
+    current = Number(slider.value);
+
+    currentValue.textContent = current;
+
+    drawWire();
+
+});
