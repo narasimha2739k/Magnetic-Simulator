@@ -9,18 +9,14 @@ const ctx = canvas.getContext("2d");
 // UI
 const slider = document.getElementById("currentSlider");
 const currentValue = document.getElementById("currentValue");
+const directionRadios = document.querySelectorAll('input[name="direction"]');
 
-const directionRadios = document.querySelectorAll(
-    'input[name="direction"]'
-);
-
-// State
+// Simulation State
 let current = Number(slider.value);
-
 let currentDirection = "out";
 
 // ===============================
-// Draw Field Lines
+// Draw Magnetic Field Lines
 // ===============================
 function drawFieldLines() {
 
@@ -30,14 +26,61 @@ function drawFieldLines() {
     for (let radius = 40; radius <= current * 25 + 30; radius += 25) {
 
         ctx.beginPath();
-
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
 
         ctx.strokeStyle = "#2196F3";
-
         ctx.lineWidth = 2;
-
         ctx.stroke();
+
+    }
+}
+
+// ===============================
+// Draw Direction Arrows
+// ===============================
+function drawDirectionArrows() {
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    const positions = [
+
+        {x:centerX,     y:centerY-40},
+        {x:centerX+40,  y:centerY},
+        {x:centerX,     y:centerY+40},
+        {x:centerX-40,  y:centerY},
+
+        {x:centerX+28,  y:centerY-28},
+        {x:centerX+28,  y:centerY+28},
+        {x:centerX-28,  y:centerY+28},
+        {x:centerX-28,  y:centerY-28}
+
+    ];
+
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "#1565C0";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    let arrows;
+
+    if(currentDirection === "out"){
+
+        arrows = ["←","↑","→","↓","↖","↗","↘","↙"];
+
+    }else{
+
+        arrows = ["→","↓","←","↑","↘","↙","↖","↗"];
+
+    }
+
+    for(let i=0;i<positions.length;i++){
+
+        ctx.fillText(
+            arrows[i],
+            positions[i].x,
+            positions[i].y
+        );
 
     }
 
@@ -52,48 +95,23 @@ function drawWire() {
     const centerY = canvas.height / 2;
 
     ctx.beginPath();
-
     ctx.arc(centerX, centerY, 15, 0, Math.PI * 2);
 
-    if(currentDirection==="out"){
+    ctx.fillStyle = "red";
+    ctx.fill();
 
-        ctx.fillStyle="red";
+    ctx.fillStyle = "white";
+    ctx.font = "18px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
 
-        ctx.fill();
+    if(currentDirection === "out"){
 
-        ctx.fillStyle="white";
+        ctx.fillText("•", centerX, centerY);
 
-        ctx.font="20px Arial";
+    }else{
 
-        ctx.textAlign="center";
-
-        ctx.textBaseline="middle";
-
-        ctx.fillText("•",centerX,centerY);
-
-    }
-
-    else{
-
-        ctx.fillStyle="red";
-
-        ctx.fill();
-
-        ctx.strokeStyle="white";
-
-        ctx.lineWidth=3;
-
-        ctx.beginPath();
-
-        ctx.moveTo(centerX-7,centerY-7);
-
-        ctx.lineTo(centerX+7,centerY+7);
-
-        ctx.moveTo(centerX+7,centerY-7);
-
-        ctx.lineTo(centerX-7,centerY+7);
-
-        ctx.stroke();
+        ctx.fillText("×", centerX, centerY);
 
     }
 
@@ -102,37 +120,36 @@ function drawWire() {
 // ===============================
 // Draw Scene
 // ===============================
-function draw(){
+function draw() {
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     drawFieldLines();
+
+    drawDirectionArrows();
 
     drawWire();
 
 }
 
 // ===============================
-// Slider
+// Events
 // ===============================
 slider.addEventListener("input",()=>{
 
-    current=Number(slider.value);
+    current = Number(slider.value);
 
-    currentValue.textContent=current;
+    currentValue.textContent = current;
 
     draw();
 
 });
 
-// ===============================
-// Radio Buttons
-// ===============================
 directionRadios.forEach(radio=>{
 
     radio.addEventListener("change",()=>{
 
-        currentDirection=radio.value;
+        currentDirection = radio.value;
 
         draw();
 
