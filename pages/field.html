@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnetic Field Simulator</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">
+        🧲 Magnetic Simulator
+    </div>
+
+    <ul class="nav-links">
+        <li><a href="../index.html">Home</a></li>
+    </ul>
+
+</nav>
+
+<h1 class="page-title">
+    Magnetic Field Simulator
+</h1>
+
+<div class="simulation-container">
+
+    <div class="control-panel">
+
+        <h2>Controls</h2>
+
+        <label>Current (Ampere)</label>
+
+        <input
+            type="range"
+            id="currentSlider"
+            min="1"
+            max="10"
+            value="5">
+
+        <p>
+            Current:
+            <span id="currentValue">5</span> A
+        </p>
+
+        <button id="startBtn">Start</button>
+        <button id="pauseBtn">Pause</button>
+        <button id="resetBtn">Reset</button>
+
+    </div>
+
+    <div class="canvas-panel">
+
+        <canvas
+            id="simulationCanvas"
+            width="700"
+            height="500">
+        </canvas>
+
+    </div>
+
+</div>
+
+<script src="../js/field.js"></script>
+
+</body>
+</html>
