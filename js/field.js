@@ -46,6 +46,24 @@ let wires = [
     { x: canvas.width / 2 + 120, y: canvas.height / 2, current: -1 }
 ];
 
+// Particles (MILESTONE 10)
+let particles = [
+    {
+        x: canvas.width / 2 - 150,
+        y: canvas.height / 2,
+        vx: 2,
+        vy: 1,
+        charge: 1
+    },
+    {
+        x: canvas.width / 2 + 150,
+        y: canvas.height / 2,
+        vx: -2,
+        vy: 1,
+        charge: -1
+    }
+];
+
 // Mouse
 let mouseX = canvas.width / 2;
 let mouseY = canvas.height / 2;
@@ -85,20 +103,6 @@ canvas.addEventListener("mousemove", (event) => {
     updateInfoPanel();
 });
 
-canvas.addEventListener("click", (event) => {
-
-    const rect = canvas.getBoundingClientRect();
-
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    wires.push({
-        x,
-        y,
-        current: currentDirection === "out" ? 1 : -1
-    });
-});
-
 canvas.addEventListener("mousedown", (event) => {
 
     const rect = canvas.getBoundingClientRect();
@@ -106,7 +110,6 @@ canvas.addEventListener("mousedown", (event) => {
     const mx = event.clientX - rect.left;
     const my = event.clientY - rect.top;
 
-    // compass check
     const dxC = mx - compassX;
     const dyC = my - compassY;
 
@@ -117,7 +120,6 @@ canvas.addEventListener("mousedown", (event) => {
         return;
     }
 
-    // wire drag
     for (let i = 0; i < wires.length; i++) {
 
         const w = wires[i];
@@ -163,27 +165,129 @@ function drawGrid() {
 }
 
 // ===============================
-// Field Lines
+// Field Vector (CORE)
 // ===============================
-function drawFieldLines() {
+function getFieldVector(x, y) {
+
+    let fx = 0;
+    let fy = 0;
 
     for (let w of wires) {
 
-        for (let r = 30; r <= 220; r += 25) {
+        const dx = x - w.x;
+        const dy = y - w.y;
+
+        const r2 = dx * dx + dy * dy;
+
+        const r = Math.sqrt(r2);
+
+        if (r < 5) continue;
+
+        const B = (MU_SCALE * w.current) / r2;
+
+        fx += (-dy / r) * B;
+        fy += (dx / r) * B;
+    }
+
+    return { fx, fy };
+}
+
+// ===============================
+// STREAMLINES (MILESTONE 10)
+// ===============================
+function drawStreamlines() {
+
+    const step = 30;
+
+    for (let x = 0; x < canvas.width; x += step) {
+        for (let y = 0; y < canvas.height; y += step) {
+
+            let px = x;
+            let py = y;
 
             ctx.beginPath();
-            ctx.arc(w.x, w.y, r, 0, Math.PI * 2);
+            ctx.moveTo(px, py);
 
-            const fade = Math.max(0.12, 1 / (r * 0.02));
+            for (let i = 0; i < 6; i++) {
 
-            ctx.strokeStyle =
-                w.current > 0
-                    ? `rgba(33,150,243,${fade})`
-                    : `rgba(244,67,54,${fade})`;
+                const v = getFieldVector(px, py);
 
-            ctx.lineWidth = 1.2;
+                const mag = Math.sqrt(v.fx * v.fx + v.fy * v.fy);
+                if (mag < 0.001) break;
+
+                px += (v.fx / mag) * 6;
+                py += (v.fy / mag) * 6;
+
+                ctx.lineTo(px, py);
+            }
+
+            ctx.strokeStyle = "rgba(33,150,243,0.12)";
             ctx.stroke();
         }
+    }
+}
+
+// ===============================
+// Particle Physics (MILESTONE 10)
+// ===============================
+function getMagneticField(x, y) {
+
+    let Bz = 0;
+
+    for (let w of wires) {
+
+        const dx = x - w.x;
+        const dy = y - w.y;
+
+        const r2 = dx * dx + dy * dy;
+
+        if (r2 < 10) continue;
+
+        Bz += (MU_SCALE * w.current) / r2;
+    }
+
+    return Bz;
+}
+
+function updateParticles() {
+
+    for (let p of particles) {
+
+        const B = getMagneticField(p.x, p.y);
+
+        const ax = p.charge * p.vy * B * 0.01;
+        const ay = -p.charge * p.vx * B * 0.01;
+
+        p.vx += ax;
+        p.vy += ay;
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (
+            p.x < 0 || p.x > canvas.width ||
+            p.y < 0 || p.y > canvas.height
+        ) {
+            p.x = canvas.width / 2;
+            p.y = canvas.height / 2;
+            p.vx = 2;
+            p.vy = 1;
+        }
+    }
+}
+
+function drawParticles() {
+
+    for (let p of particles) {
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+
+        ctx.fillStyle = p.charge > 0 ? "yellow" : "orange";
+        ctx.fill();
+
+        ctx.strokeStyle = "black";
+        ctx.stroke();
     }
 }
 
@@ -264,7 +368,7 @@ function drawWire() {
 }
 
 // ===============================
-// Probe (FIXED)
+// Probe
 // ===============================
 function drawProbe() {
 
@@ -279,37 +383,7 @@ function drawProbe() {
 
     ctx.fill();
 
-    ctx.shadowBlur = 0;
-
     ctx.restore();
-}
-
-// ===============================
-// Magnetic Field Vector
-// ===============================
-function getFieldAngle(x, y) {
-
-    let fx = 0;
-    let fy = 0;
-
-    for (let w of wires) {
-
-        const dx = x - w.x;
-        const dy = y - w.y;
-
-        const r2 = dx * dx + dy * dy;
-
-        const r = Math.sqrt(r2);
-
-        if (r < 5) continue;
-
-        const B = (MU_SCALE * w.current) / r2;
-
-        fx += (-dy / r) * B;
-        fy += (dx / r) * B;
-    }
-
-    return Math.atan2(fy, fx);
 }
 
 // ===============================
@@ -317,7 +391,10 @@ function getFieldAngle(x, y) {
 // ===============================
 function drawCompass() {
 
-    const angle = getFieldAngle(compassX, compassY);
+    const angle = Math.atan2(
+        getFieldVector(compassX, compassY).fy,
+        getFieldVector(compassX, compassY).fx
+    );
 
     ctx.beginPath();
     ctx.arc(compassX, compassY, 18, 0, Math.PI * 2);
@@ -358,12 +435,13 @@ function draw() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    drawStreamlines();     // MILESTONE 10
     drawGrid();
-    drawFieldLines();
-    drawProbe();
     drawDirectionArrows();
     drawWire();
+    drawParticles();
     drawCompass();
+    drawProbe();
 }
 
 // ===============================
@@ -401,6 +479,9 @@ function animate() {
     if (animationRunning) {
 
         animationAngle += currentDirection === "out" ? 0.02 : -0.02;
+
+        updateParticles(); // MILESTONE 10
+
         draw();
     }
 
