@@ -49,6 +49,7 @@ let compassX = canvas.width / 2 + 120;
 let compassY = canvas.height / 2;
 
 let draggingCompass = false;
+let draggingWire = null;
 let compassOffsetX = 0;
 let compassOffsetY = 0;
 
@@ -70,8 +71,25 @@ canvas.addEventListener("mousemove", (event) => {
         compassX = mx - compassOffsetX;
         compassY = my - compassOffsetY;
     }
+    if (draggingWire !== null) {
+    wires[draggingWire].x = mx;
+    wires[draggingWire].y = my;
+}
 
     updateInfoPanel();
+});
+canvas.addEventListener("click", (event) => {
+
+    const rect = canvas.getBoundingClientRect();
+
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    wires.push({
+        x: x,
+        y: y,
+        current: currentDirection === "out" ? 1 : -1
+    });
 });
 
 canvas.addEventListener("mousedown", (event) => {
@@ -81,22 +99,35 @@ canvas.addEventListener("mousedown", (event) => {
     const mx = event.clientX - rect.left;
     const my = event.clientY - rect.top;
 
-    const dx = mx - compassX;
-    const dy = my - compassY;
+    // Compass check first
+    const dxC = mx - compassX;
+    const dyC = my - compassY;
 
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist < 15) {
+    if (Math.sqrt(dxC * dxC + dyC * dyC) < 15) {
         draggingCompass = true;
-        compassOffsetX = dx;
-        compassOffsetY = dy;
+        compassOffsetX = dxC;
+        compassOffsetY = dyC;
+        return;
+    }
+
+    // Wire drag check
+    for (let i = 0; i < wires.length; i++) {
+
+        const w = wires[i];
+
+        const dx = mx - w.x;
+        const dy = my - w.y;
+
+        if (Math.sqrt(dx * dx + dy * dy) < 15) {
+            draggingWire = i;
+            return;
+        }
     }
 });
-
 canvas.addEventListener("mouseup", () => {
     draggingCompass = false;
+    draggingWire = null;
 });
-
 // ===============================
 // Draw Coordinate Grid
 // ===============================
@@ -224,11 +255,15 @@ function drawWire() {
 // Probe (ADDED)
 // ===============================
 function drawProbe() {
-
+    
     ctx.beginPath();
     ctx.arc(mouseX, mouseY, 5, 0, Math.PI * 2);
     ctx.fillStyle = "lime";
     ctx.fill();
+    ctx.shadowColor = "lime";
+    ctx.shadowBlur = 8;
+
+    ctx.shadowBlur = 0;
 }
 
 // ===============================
@@ -305,10 +340,11 @@ function draw() {
 
     drawGrid();
     drawFieldLines();
+
+    drawProbe();        // probe FIRST (so it's visible)
     drawDirectionArrows();
-    drawProbe();        // ADDED
     drawWire();
-    drawCompass();      // ADDED
+    drawCompass();
 }
 
 // ===============================
@@ -332,7 +368,7 @@ for (let w of wires) {
 
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    const contribution = (w.current * 100) / Math.max(dist, 1);
+    const contribution = (w.current * 120) / Math.max(dist, 1);
 
     totalField += contribution;
 }
