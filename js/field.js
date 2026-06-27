@@ -12,9 +12,7 @@ const ctx = canvas.getContext("2d");
 const slider = document.getElementById("currentSlider");
 const currentValue = document.getElementById("currentValue");
 
-const directionRadios = document.querySelectorAll(
-    'input[name="direction"]'
-);
+const directionRadios = document.querySelectorAll('input[name="direction"]');
 
 const startBtn = document.getElementById("startBtn");
 const pauseBtn = document.getElementById("pauseBtn");
@@ -140,7 +138,7 @@ canvas.addEventListener("mouseup", () => {
 });
 
 // ===============================
-// Draw Grid
+// Grid
 // ===============================
 function drawGrid() {
 
@@ -234,7 +232,7 @@ function drawDirectionArrows() {
             const x = w.x + radius * Math.cos(theta);
             const y = w.y + radius * Math.sin(theta);
 
-            let angle =
+            const angle =
                 w.current > 0
                     ? theta + Math.PI / 2
                     : theta - Math.PI / 2;
@@ -266,7 +264,7 @@ function drawWire() {
 }
 
 // ===============================
-// Probe
+// Probe (FIXED)
 // ===============================
 function drawProbe() {
 
@@ -275,12 +273,14 @@ function drawProbe() {
     ctx.beginPath();
     ctx.arc(mouseX, mouseY, 5, 0, Math.PI * 2);
     ctx.fillStyle = "lime";
-    ctx.fill();
 
     ctx.shadowColor = "lime";
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 12;
 
     ctx.fill();
+
+    ctx.shadowBlur = 0;
+
     ctx.restore();
 }
 
@@ -394,7 +394,7 @@ function updateInfoPanel() {
 }
 
 // ===============================
-// Animation
+// Animation Loop
 // ===============================
 function animate() {
 
