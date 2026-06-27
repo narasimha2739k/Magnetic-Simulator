@@ -26,25 +26,33 @@ const infoDistance = document.getElementById("infoDistance");
 const infoField = document.getElementById("infoField");
 
 // ===============================
+// Physics Constant
+// ===============================
+const MU_SCALE = 200;
+
+function safeDistance(dx, dy) {
+    return Math.sqrt(dx * dx + dy * dy) + 0.0001;
+}
+
+// ===============================
 // Simulation State
 // ===============================
 let current = Number(slider.value);
 let currentDirection = "out";
 let animationRunning = false;
 let animationAngle = 0;
-// Multiple Wires (NEW)
+
+// Multiple Wires
 let wires = [
     { x: canvas.width / 2, y: canvas.height / 2, current: 1 },
     { x: canvas.width / 2 + 120, y: canvas.height / 2, current: -1 }
 ];
 
-// Mouse Position
+// Mouse
 let mouseX = canvas.width / 2;
 let mouseY = canvas.height / 2;
 
-// ===============================
-// Compass State (ADDED)
-// ===============================
+// Compass
 let compassX = canvas.width / 2 + 120;
 let compassY = canvas.height / 2;
 
@@ -54,7 +62,7 @@ let compassOffsetX = 0;
 let compassOffsetY = 0;
 
 // ===============================
-// Mouse Events (UPDATED + ADDED)
+// Mouse Events
 // ===============================
 canvas.addEventListener("mousemove", (event) => {
 
@@ -66,18 +74,19 @@ canvas.addEventListener("mousemove", (event) => {
     mouseX = mx;
     mouseY = my;
 
-    // Drag compass
     if (draggingCompass) {
         compassX = mx - compassOffsetX;
         compassY = my - compassOffsetY;
     }
+
     if (draggingWire !== null) {
-    wires[draggingWire].x = mx;
-    wires[draggingWire].y = my;
-}
+        wires[draggingWire].x = mx;
+        wires[draggingWire].y = my;
+    }
 
     updateInfoPanel();
 });
+
 canvas.addEventListener("click", (event) => {
 
     const rect = canvas.getBoundingClientRect();
@@ -86,8 +95,8 @@ canvas.addEventListener("click", (event) => {
     const y = event.clientY - rect.top;
 
     wires.push({
-        x: x,
-        y: y,
+        x,
+        y,
         current: currentDirection === "out" ? 1 : -1
     });
 });
@@ -99,7 +108,7 @@ canvas.addEventListener("mousedown", (event) => {
     const mx = event.clientX - rect.left;
     const my = event.clientY - rect.top;
 
-    // Compass check first
+    // compass check
     const dxC = mx - compassX;
     const dyC = my - compassY;
 
@@ -110,7 +119,7 @@ canvas.addEventListener("mousedown", (event) => {
         return;
     }
 
-    // Wire drag check
+    // wire drag
     for (let i = 0; i < wires.length; i++) {
 
         const w = wires[i];
@@ -124,12 +133,14 @@ canvas.addEventListener("mousedown", (event) => {
         }
     }
 });
+
 canvas.addEventListener("mouseup", () => {
     draggingCompass = false;
     draggingWire = null;
 });
+
 // ===============================
-// Draw Coordinate Grid
+// Draw Grid
 // ===============================
 function drawGrid() {
 
@@ -152,27 +163,34 @@ function drawGrid() {
         ctx.stroke();
     }
 }
+
+// ===============================
+// Field Lines
+// ===============================
 function drawFieldLines() {
 
     for (let w of wires) {
 
-        const step = 25;
-
-        for (let r = 30; r <= current * 25 + 80; r += step) {
+        for (let r = 30; r <= 220; r += 25) {
 
             ctx.beginPath();
             ctx.arc(w.x, w.y, r, 0, Math.PI * 2);
 
-            ctx.strokeStyle =
-                w.current > 0 ? "#2196F3" : "#64B5F6";
+            const fade = Math.max(0.12, 1 / (r * 0.02));
 
-            ctx.lineWidth = 1.5;
+            ctx.strokeStyle =
+                w.current > 0
+                    ? `rgba(33,150,243,${fade})`
+                    : `rgba(244,67,54,${fade})`;
+
+            ctx.lineWidth = 1.2;
             ctx.stroke();
         }
     }
 }
+
 // ===============================
-// Draw Arrow
+// Arrow
 // ===============================
 function drawArrow(x, y, angle) {
 
@@ -194,7 +212,6 @@ function drawArrow(x, y, angle) {
     ctx.lineTo(length / 2 - 5, -4);
     ctx.lineTo(length / 2 - 5, 4);
     ctx.closePath();
-
     ctx.fillStyle = "#1565C0";
     ctx.fill();
 
@@ -202,7 +219,7 @@ function drawArrow(x, y, angle) {
 }
 
 // ===============================
-// Draw Direction Arrows
+// Direction Arrows
 // ===============================
 function drawDirectionArrows() {
 
@@ -228,7 +245,7 @@ function drawDirectionArrows() {
 }
 
 // ===============================
-// Draw Wire
+// Wire
 // ===============================
 function drawWire() {
 
@@ -244,30 +261,31 @@ function drawWire() {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        if (w.current > 0) {
-            ctx.fillText("•", w.x, w.y);
-        } else {
-            ctx.fillText("×", w.x, w.y);
-        }
+        ctx.fillText(w.current > 0 ? "•" : "×", w.x, w.y);
     }
 }
+
 // ===============================
-// Probe (ADDED)
+// Probe
 // ===============================
 function drawProbe() {
-    
+
+    ctx.save();
+
     ctx.beginPath();
     ctx.arc(mouseX, mouseY, 5, 0, Math.PI * 2);
     ctx.fillStyle = "lime";
     ctx.fill();
-    ctx.shadowColor = "lime";
-    ctx.shadowBlur = 8;
 
-    ctx.shadowBlur = 0;
+    ctx.shadowColor = "lime";
+    ctx.shadowBlur = 10;
+
+    ctx.fill();
+    ctx.restore();
 }
 
 // ===============================
-// Compass Angle (ADDED)
+// Magnetic Field Vector
 // ===============================
 function getFieldAngle(x, y) {
 
@@ -279,19 +297,23 @@ function getFieldAngle(x, y) {
         const dx = x - w.x;
         const dy = y - w.y;
 
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const r2 = dx * dx + dy * dy;
 
-        const strength = (w.current * 100) / Math.max(dist * dist, 1);
+        const r = Math.sqrt(r2);
 
-        fx += -dy * strength;
-        fy += dx * strength;
+        if (r < 5) continue;
+
+        const B = (MU_SCALE * w.current) / r2;
+
+        fx += (-dy / r) * B;
+        fy += (dx / r) * B;
     }
 
     return Math.atan2(fy, fx);
 }
 
 // ===============================
-// Compass (ADDED)
+// Compass
 // ===============================
 function drawCompass() {
 
@@ -308,7 +330,6 @@ function drawCompass() {
     ctx.translate(compassX, compassY);
     ctx.rotate(angle);
 
-    // red north
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(0, -14);
@@ -316,7 +337,6 @@ function drawCompass() {
     ctx.lineWidth = 3;
     ctx.stroke();
 
-    // blue south
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(0, 14);
@@ -332,7 +352,7 @@ function drawCompass() {
 }
 
 // ===============================
-// Draw Scene (UPDATED)
+// Scene
 // ===============================
 function draw() {
 
@@ -340,15 +360,14 @@ function draw() {
 
     drawGrid();
     drawFieldLines();
-
-    drawProbe();        // probe FIRST (so it's visible)
+    drawProbe();
     drawDirectionArrows();
     drawWire();
     drawCompass();
 }
 
 // ===============================
-// Update Information Panel (UPDATED)
+// Info Panel
 // ===============================
 function updateInfoPanel() {
 
@@ -361,34 +380,27 @@ function updateInfoPanel() {
 
     let totalField = 0;
 
-for (let w of wires) {
+    for (let w of wires) {
 
-    const dx = mouseX - w.x;
-    const dy = mouseY - w.y;
+        const dx = mouseX - w.x;
+        const dy = mouseY - w.y;
 
-    const dist = Math.sqrt(dx * dx + dy * dy);
+        const dist = safeDistance(dx, dy);
 
-    const contribution = (w.current * 120) / Math.max(dist, 1);
+        totalField += (MU_SCALE * w.current) / dist;
+    }
 
-    totalField += contribution;
-}
-
-infoField.textContent = totalField.toFixed(2) + " μT";
+    infoField.textContent = totalField.toFixed(2) + " μT";
 }
 
 // ===============================
-// Animation Loop
+// Animation
 // ===============================
 function animate() {
 
     if (animationRunning) {
 
-        if (currentDirection === "out") {
-            animationAngle += 0.02;
-        } else {
-            animationAngle -= 0.02;
-        }
-
+        animationAngle += currentDirection === "out" ? 0.02 : -0.02;
         draw();
     }
 
@@ -396,7 +408,7 @@ function animate() {
 }
 
 // ===============================
-// Events (unchanged)
+// UI Events
 // ===============================
 slider.addEventListener("input", () => {
     current = Number(slider.value);
@@ -413,13 +425,8 @@ directionRadios.forEach(radio => {
     });
 });
 
-startBtn.addEventListener("click", () => {
-    animationRunning = true;
-});
-
-pauseBtn.addEventListener("click", () => {
-    animationRunning = false;
-});
+startBtn.addEventListener("click", () => animationRunning = true);
+pauseBtn.addEventListener("click", () => animationRunning = false);
 
 resetBtn.addEventListener("click", () => {
     animationRunning = false;
@@ -428,7 +435,7 @@ resetBtn.addEventListener("click", () => {
 });
 
 // ===============================
-// Initial Draw
+// Init
 // ===============================
 updateInfoPanel();
 draw();
