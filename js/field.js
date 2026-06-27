@@ -32,6 +32,11 @@ let current = Number(slider.value);
 let currentDirection = "out";
 let animationRunning = false;
 let animationAngle = 0;
+// Multiple Wires (NEW)
+let wires = [
+    { x: canvas.width / 2, y: canvas.height / 2, current: 1 },
+    { x: canvas.width / 2 + 120, y: canvas.height / 2, current: -1 }
+];
 
 // Mouse Position
 let mouseX = canvas.width / 2;
@@ -116,26 +121,25 @@ function drawGrid() {
         ctx.stroke();
     }
 }
-
-// ===============================
-// Draw Magnetic Field Lines
-// ===============================
 function drawFieldLines() {
 
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
+    for (let w of wires) {
 
-    for (let radius = 40; radius <= current * 25 + 30; radius += 25) {
+        const step = 25;
 
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        for (let r = 30; r <= current * 25 + 80; r += step) {
 
-        ctx.strokeStyle = "#2196F3";
-        ctx.lineWidth = 2;
-        ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(w.x, w.y, r, 0, Math.PI * 2);
+
+            ctx.strokeStyle =
+                w.current > 0 ? "#2196F3" : "#64B5F6";
+
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
     }
 }
-
 // ===============================
 // Draw Arrow
 // ===============================
@@ -171,26 +175,24 @@ function drawArrow(x, y, angle) {
 // ===============================
 function drawDirectionArrows() {
 
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
     const radius = 40;
 
-    for (let i = 0; i < 8; i++) {
+    for (let w of wires) {
 
-        const theta = animationAngle + (i * Math.PI) / 4;
+        for (let i = 0; i < 8; i++) {
 
-        const x = centerX + radius * Math.cos(theta);
-        const y = centerY + radius * Math.sin(theta);
+            const theta = animationAngle + (i * Math.PI) / 4;
 
-        let angle;
+            const x = w.x + radius * Math.cos(theta);
+            const y = w.y + radius * Math.sin(theta);
 
-        if (currentDirection === "out") {
-            angle = theta + Math.PI / 2;
-        } else {
-            angle = theta - Math.PI / 2;
+            let angle =
+                w.current > 0
+                    ? theta + Math.PI / 2
+                    : theta - Math.PI / 2;
+
+            drawArrow(x, y, angle);
         }
-
-        drawArrow(x, y, angle);
     }
 }
 
@@ -199,26 +201,25 @@ function drawDirectionArrows() {
 // ===============================
 function drawWire() {
 
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
+    for (let w of wires) {
 
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, 15, 0, Math.PI * 2);
-    ctx.fillStyle = "red";
-    ctx.fill();
+        ctx.beginPath();
+        ctx.arc(w.x, w.y, 15, 0, Math.PI * 2);
+        ctx.fillStyle = "red";
+        ctx.fill();
 
-    ctx.fillStyle = "white";
-    ctx.font = "18px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+        ctx.fillStyle = "white";
+        ctx.font = "18px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
 
-    if (currentDirection === "out") {
-        ctx.fillText("•", centerX, centerY);
-    } else {
-        ctx.fillText("×", centerX, centerY);
+        if (w.current > 0) {
+            ctx.fillText("•", w.x, w.y);
+        } else {
+            ctx.fillText("×", w.x, w.y);
+        }
     }
 }
-
 // ===============================
 // Probe (ADDED)
 // ===============================
@@ -235,13 +236,23 @@ function drawProbe() {
 // ===============================
 function getFieldAngle(x, y) {
 
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
+    let fx = 0;
+    let fy = 0;
 
-    const dx = x - centerX;
-    const dy = y - centerY;
+    for (let w of wires) {
 
-    return Math.atan2(dy, dx) + Math.PI / 2;
+        const dx = x - w.x;
+        const dy = y - w.y;
+
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        const strength = (w.current * 100) / Math.max(dist * dist, 1);
+
+        fx += -dy * strength;
+        fy += dx * strength;
+    }
+
+    return Math.atan2(fy, fx);
 }
 
 // ===============================
@@ -312,20 +323,21 @@ function updateInfoPanel() {
             ? "Out of Page"
             : "Into Page";
 
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
+    let totalField = 0;
 
-    const dx = mouseX - centerX;
-    const dy = mouseY - centerY;
+for (let w of wires) {
 
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    const dx = mouseX - w.x;
+    const dy = mouseY - w.y;
 
-    infoDistance.textContent =
-        (distance / 10).toFixed(1) + " cm";
+    const dist = Math.sqrt(dx * dx + dy * dy);
 
-    let field = (current * 100) / Math.max(distance, 1);
+    const contribution = (w.current * 100) / Math.max(dist, 1);
 
-    infoField.textContent = field.toFixed(2) + " μT";
+    totalField += contribution;
+}
+
+infoField.textContent = totalField.toFixed(2) + " μT";
 }
 
 // ===============================
