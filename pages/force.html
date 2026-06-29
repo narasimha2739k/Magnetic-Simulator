@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Magnetic Force Simulator</title>
+
+    <link rel="stylesheet"
+          href="../css/style.css">
+
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🧲 Magnetic Simulator
+        </div>
+
+        <ul class="nav-links">
+
+            <li><a href="../index.html">Home</a></li>
+
+            <li><a href="field.html">Magnetic Field</a></li>
+
+            <li><a href="force.html">Magnetic Force</a></li>
+
+            <li><a href="theory.html">Theory</a></li>
+
+            <li><a href="about.html">About</a></li>
+
+        </ul>
+
+    </nav>
+
+    <!-- ================= TITLE ================= -->
+
+    <h1 class="page-title">
+
+        Magnetic Force Simulator
+
+    </h1>
+
+    <!-- ================= MAIN CONTAINER ================= -->
+
+    <div class="simulation-container">
+
+        <!-- ================= CONTROL PANEL ================= -->
+
+        <div class="control-panel">
+
+            <h2>Controls</h2>
+
+            <!-- Magnetic Field Slider -->
+
+            <label for="fieldSlider">
+
+                <strong>Magnetic Field (Tesla)</strong>
+
+            </label>
+
+            <input
+                type="range"
+                id="fieldSlider"
+                min="1"
+                max="10"
+                value="5">
+
+            <p>
+
+                B :
+                <span id="fieldValue">5</span> T
+
+            </p>
+
+            <hr>
+
+            <!-- Velocity Slider -->
+
+            <label for="velocitySlider">
+
+                <strong>Particle Velocity (m/s)</strong>
+
+            </label>
+
+            <input
+                type="range"
+                id="velocitySlider"
+                min="1"
+                max="10"
+                value="5">
+
+            <p>
+
+                v :
+                <span id="velocityValue">5</span> m/s
+
+            </p>
+
+            <hr>
+
+            <!-- Charge Selection -->
+
+            <h3>Particle Charge</h3>
+
+            <div class="direction-group">
+
+                <label>
+
+                    <input
+                        type="radio"
+                        name="charge"
+                        value="positive"
+                        checked>
+
+                    Positive (+)
+
+                </label>
+
+                <label>
+
+                    <input
+                        type="radio"
+                        name="charge"
+                        value="negative">
+
+                    Negative (-)
+
+                </label>
+
+            </div>
+
+            <hr>
+
+            <!-- Simulation Buttons -->
+
+            <h3>Simulation Controls</h3>
+
+            <div class="button-group">
+
+                <button id="startBtn">
+
+                    ▶ Start
+
+                </button>
+
+                <button id="pauseBtn">
+
+                    ⏸ Pause
+
+                </button>
+
+                <button id="resetBtn">
+
+                    🔄 Reset
+
+                </button>
+
+            </div>
+
+            <hr>
+
+            <!-- Live Information -->
+
+            <h3>Live Information</h3>
+
+            <div class="info-panel">
+
+                <p>
+
+                    <strong>Magnetic Field:</strong>
+
+                    <span id="infoField">
+
+                        5 T
+
+                    </span>
+
+                </p>
+
+                <p>
+
+                    <strong>Velocity:</strong>
+
+                    <span id="infoVelocity">
+
+                        5 m/s
+
+                    </span>
+
+                </p>
+
+                <p>
+
+                    <strong>Charge:</strong>
+
+                    <span id="infoCharge">
+
+                        Positive
+
+                    </span>
+
+                </p>
+
+                <p>
+
+                    <strong>Magnetic Force:</strong>
+
+                    <span id="infoForce">
+
+                        0 N
+
+                    </span>
+
+                </p>
+
+                <p>
+
+                    <strong>Radius:</strong>
+
+                    <span id="infoRadius">
+
+                        0 px
+
+                    </span>
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- ================= CANVAS ================= -->
+
+        <div class="canvas-panel">
+
+            <canvas
+                id="forceCanvas"
+                width="900"
+                height="600">
+
+            </canvas>
+
+        </div>
+
+    </div>
+
+    <script src="../js/force.js"></script>
+
+</body>
+
+</html>
